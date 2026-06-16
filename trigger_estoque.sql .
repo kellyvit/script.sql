@@ -1,0 +1,35 @@
+CREATE TABLE produtos (
+    id_produto INT PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    quantidade_estoque INT NOT NULL
+);
+
+CREATE TABLE vendas (
+    id_venda INT PRIMARY KEY,
+    id_produto INT,
+    quantidade_vendida INT NOT NULL,
+    FOREIGN KEY (id_produto) REFERENCES produtos(id_produto)
+);
+
+DELIMITER ;
+
+CREATE TRIGGER atualizar_estoque_apos_venda
+AFTER INSERT ON vendas
+FOR EACH ROW
+BEGIN
+
+UPDATE produtos
+    SET quantidade_estoque = quantidade_estoque - NEW.quantidade_vendida
+    WHERE id_produto = NEW.id_produto;
+END;
+
+DELIMITER ;
+
+INSERT INTO produtos (id_produto, nome, quantidade_estoque) 
+VALUES (1, 'Teclado Mecânico', 50);
+
+
+INSERT INTO vendas (id_venda, id_produto, quantidade_vendida) 
+VALUES (101, 1, 5);
+
+SELECT * FROM produtos;
